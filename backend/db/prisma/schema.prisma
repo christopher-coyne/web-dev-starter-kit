@@ -15,6 +15,7 @@ enum UserRole {
 
 model User {
   id        String   @id @default(cuid())
+  clerkId   String   @unique
   username  String
   role      UserRole @default(USER) // role can also be set in clerk directly
   createdAt DateTime @default(now())

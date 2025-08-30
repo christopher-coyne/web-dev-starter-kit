@@ -28,7 +28,7 @@ export async function loader(args: Route.LoaderArgs) {
       const response = await apiClient.profile.profileControllerGetCurrentUser({
         secure: true, // Explicitly enable security worker
       });
-      user = response.data;
+      user = await response.json();
 
       console.log("✅ Frontend - User data from backend:", user);
     } catch (error) {
@@ -52,7 +52,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { userId, isSignedIn, user } = loaderData;
-  console.log(userId, isSignedIn, user);
+  console.log("userId, isSignedIn, user", userId, isSignedIn, user);
 
-  return <Welcome />;
+  return <Welcome user={user} isSignedIn={isSignedIn} />;
 }

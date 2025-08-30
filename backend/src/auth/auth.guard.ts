@@ -6,9 +6,13 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { verifyToken } from '@clerk/backend';
+import { PrismaService } from '../prisma/prisma.service';
+import type { ClerkUser } from './types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  constructor(private prisma: PrismaService) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
@@ -39,11 +43,18 @@ export class AuthGuard implements CanActivate {
       console.log('✅ Auth Guard - Token verified successfully');
       console.log('👤 Auth Guard - User payload:', payload);
 
-      // Attach the user data to the request for use in controllers
+      // Find or create user in database
+      const dbUser = await this.findOrCreateUser(
+        payload as unknown as ClerkUser,
+      );
+      console.log('👤 Auth Guard - Database user:', dbUser);
+
+      // Attach both Clerk user data and database user to the request
       request['user'] = payload;
+      request['dbUser'] = dbUser;
       return true;
     } catch (error) {
-      console.log('❌ Auth Guard - Token verification failed:');
+      console.log('❌ Auth Guard - Token verification failed:', error);
       throw new UnauthorizedException('Invalid token');
     }
   }
@@ -51,5 +62,28 @@ export class AuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private async findOrCreateUser(clerkUser: ClerkUser) {
+    // First, try to find the user by clerkId
+    const existingUser = await this.prisma.user.findUnique({
+      where: { clerkId: clerkUser.sub },
+    });
+
+    if (existingUser) {
+      console.log('👤 Auth Guard - User found in database:', existingUser);
+      return existingUser;
+    }
+
+    // If user doesn't exist, create a new one
+    const newUser = await this.prisma.user.create({
+      data: {
+        clerkId: clerkUser.sub,
+        username: clerkUser.email || `user_${clerkUser.sub.slice(-8)}`,
+      },
+    });
+
+    console.log('👤 Auth Guard - User created in database:', newUser);
+    return newUser;
   }
 }

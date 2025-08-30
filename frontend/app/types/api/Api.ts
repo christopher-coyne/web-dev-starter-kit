@@ -293,20 +293,6 @@ export class Api<
      * No description
      *
      * @tags Profile
-     * @name ProfileControllerGetFirstUser
-     * @request GET:/profile/first-user
-     */
-    profileControllerGetFirstUser: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/profile/first-user`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Profile
      * @name ProfileControllerGetCurrentUser
      * @request GET:/profile/me
      */
