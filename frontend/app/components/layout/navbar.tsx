@@ -1,4 +1,10 @@
 import { Link } from "react-router";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/react-router";
 
 export function Navbar() {
   return (
@@ -44,11 +50,18 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Login Button */}
+          {/* Authentication */}
           <div className="flex items-center">
-            <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-              Login
-            </button>
+            <SignedOut>
+              <SignInButton>
+                <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                  Login
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </div>
 
           {/* Mobile menu button */}
@@ -108,11 +121,20 @@ export function Navbar() {
           >
             Contact
           </Link>
-          {/* Mobile login button */}
+          {/* Mobile authentication */}
           <div className="pt-2">
-            <button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
-              Login
-            </button>
+            <SignedOut>
+              <SignInButton>
+                <button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">
+                  Login
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <div className="px-3 py-2">
+                <UserButton />
+              </div>
+            </SignedIn>
           </div>
         </div>
       </div>

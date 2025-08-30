@@ -6,9 +6,11 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "generate-api-local": "npx swagger-typescript-api generate --path http://localhost:3000/api-json -o ./app/types/api"
   },
   "dependencies": {
+    "@clerk/react-router": "^1.9.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
