@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import { Welcome } from "~/components/pages/home/home";
 import { getAuth } from "@clerk/react-router/ssr.server";
-import { createSsrApiClient } from "../lib/api";
+import { createApiClient } from "../lib/api";
 
 export async function loader(args: Route.LoaderArgs) {
   const { userId, getToken } = await getAuth(args);
@@ -14,19 +14,25 @@ export async function loader(args: Route.LoaderArgs) {
     try {
       // Get the JWT token
       const token = await getToken();
-      console.log("JWT Token:", token);
+      console.log(
+        "🎫 Frontend - JWT Token:",
+        token ? `${token.substring(0, 50)}...` : "No token"
+      );
 
       // Create API client with token
-      const apiClient = createSsrApiClient(args.request, async () => token);
+      const apiClient = createApiClient(args.request, async () => token);
+
+      console.log("🌐 Frontend - Making API request to /profile/me");
 
       // Make authenticated request to your backend
-      const response =
-        await apiClient.profile.profileControllerGetCurrentUser();
+      const response = await apiClient.profile.profileControllerGetCurrentUser({
+        secure: true, // Explicitly enable security worker
+      });
       user = response.data;
 
-      console.log("User data from backend:", user);
+      console.log("✅ Frontend - User data from backend:", user);
     } catch (error) {
-      console.error("Failed to fetch user data:", error);
+      console.error("❌ Frontend - Failed to fetch user data:", error);
     }
   }
 

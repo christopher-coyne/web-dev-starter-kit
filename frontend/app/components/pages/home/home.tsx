@@ -1,6 +1,3 @@
-import { Button } from "~/components/ui/button";
-import logoDark from "./logo-dark.svg";
-import logoLight from "./logo-light.svg";
 import { Rocket } from "lucide-react";
 
 export function Welcome() {

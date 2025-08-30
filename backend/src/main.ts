@@ -15,8 +15,12 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS for JWT-based authentication
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Frontend dev server
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
 
   // Configure Swagger
   const config = new DocumentBuilder()

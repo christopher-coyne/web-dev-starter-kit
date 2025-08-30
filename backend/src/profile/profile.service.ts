@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ProfileService {
   constructor(private prisma: PrismaService) {}
 
-  async getFirstUser() {
-    return this.prisma.user.findFirst();
+  getFirstUser() {
+    return { test: 'test' };
   }
 }

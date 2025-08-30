@@ -13,20 +13,37 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
+    console.log('🔍 Auth Guard - Headers:', request.headers.authorization);
+    console.log(
+      '🔍 Auth Guard - Extracted token:',
+      token ? 'Token present' : 'No token',
+    );
+
     if (!token) {
+      console.log('❌ Auth Guard - No token provided');
       throw new UnauthorizedException('No token provided');
     }
 
     try {
+      console.log('🔑 Auth Guard - Verifying token with Clerk...');
+      console.log(
+        '🔑 CLERK_SECRET_KEY present:',
+        !!process.env.CLERK_SECRET_KEY,
+      );
+
       // Verify the JWT token using Clerk
       const payload = await verifyToken(token, {
-        jwtKey: process.env.CLERK_JWT_KEY,
+        secretKey: process.env.CLERK_SECRET_KEY,
       });
+
+      console.log('✅ Auth Guard - Token verified successfully');
+      console.log('👤 Auth Guard - User payload:', payload);
 
       // Attach the user data to the request for use in controllers
       request['user'] = payload;
       return true;
     } catch (error) {
+      console.log('❌ Auth Guard - Token verification failed:');
       throw new UnauthorizedException('Invalid token');
     }
   }

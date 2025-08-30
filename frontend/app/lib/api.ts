@@ -2,57 +2,56 @@ import { Api } from "../types/api/Api";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// Create API client with Clerk token support
-export function createApiClient(getToken?: () => Promise<string | null>) {
-  return new Api({
-    baseUrl: apiUrl,
-    baseApiParams: {
-      credentials: "include",
-    },
-    // Security worker that automatically adds the Bearer token to requests
-    securityWorker: async () => {
-      if (!getToken) return {};
-
-      const token = await getToken();
-      if (!token) return {};
-
-      return {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-    },
-  });
-}
-
-// Default client for client-side usage (without authentication)
-// This should be replaced with authenticated clients in components
-export const api = createApiClient();
-
-// SSR-aware API client factory
-export function createSsrApiClient(
+// Unified API client factory that works for both SSR and client-side
+export function createApiClient(
   request?: Request,
   getToken?: () => Promise<string | null>
 ) {
   if (typeof window !== "undefined") {
-    // Client-side: use authenticated client if getToken is provided
-    return createApiClient(getToken);
+    // Client-side: use authenticated client
+    return new Api({
+      baseUrl: apiUrl,
+      baseApiParams: {
+        // No credentials needed - using JWT tokens only
+      },
+      // Security worker that automatically adds the Bearer token to requests
+      securityWorker: async () => {
+        if (!getToken) return {};
+
+        const token = await getToken();
+        if (!token) return {};
+
+        return {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+      },
+    });
   }
 
   // Server-side: handle both cookies and tokens
-  const cookie = request?.headers.get("cookie");
 
   return new Api({
     baseUrl: apiUrl,
     baseApiParams: {
-      credentials: "include",
-      headers: cookie ? { cookie } : {},
+      // No credentials needed - using JWT tokens only
+      headers: {},
+      secure: !!getToken, // Enable security worker when token is available
     },
     securityWorker: async () => {
-      if (!getToken) return {};
+      console.log("🔐 API Client - Security worker called");
+      if (!getToken) {
+        console.log("🔐 API Client - No getToken function provided");
+        return {};
+      }
 
       const token = await getToken();
-      if (!token) return {};
+
+      if (!token) {
+        console.log("🔐 API Client - No token returned");
+        return {};
+      }
 
       return {
         headers: {
@@ -62,3 +61,6 @@ export function createSsrApiClient(
     },
   });
 }
+
+// Default client for basic usage (without authentication)
+export const api = createApiClient();

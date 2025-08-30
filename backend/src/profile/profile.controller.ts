@@ -10,7 +10,7 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('first-user')
-  async getFirstUser() {
+  getFirstUser() {
     return this.profileService.getFirstUser();
   }
 
