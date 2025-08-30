@@ -26,7 +26,7 @@ export async function loader(args: Route.LoaderArgs) {
 
       // Make authenticated request to your backend
       const response = await apiClient.profile.profileControllerGetCurrentUser({
-        secure: true, // Explicitly enable security worker
+        secure: true,
       });
       user = await response.json();
 

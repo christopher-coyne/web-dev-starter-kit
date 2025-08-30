@@ -1,30 +1,33 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { User } from '../auth/user.decorator';
 import { DbUser } from '../auth/db-user.decorator';
-import type { ClerkUser } from '../auth/types';
 import type { User as DbUserType } from '@prisma/client';
+import { UserProfileDto } from './dtos/user-profile.dto';
+import { StandardResponse } from 'src/dtos/standardResponse';
 
+@ApiTags('profile')
 @Controller('profile')
 @UseGuards(AuthGuard)
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('me')
-  async getCurrentUser(@User() user: ClerkUser, @DbUser() dbUser: DbUserType) {
-    // Fetch the complete user profile from database
-    const userProfile = await this.profileService.getUserProfile(dbUser.id);
-
-    return {
-      message: 'Authenticated user profile',
-      user: {
-        id: user.sub,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-      },
-      profile: userProfile, // Complete database user profile
-    };
+  @ApiOperation({
+    summary: 'Get current user profile',
+    description: 'Retrieve the authenticated user profile information',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+    type: UserProfileDto,
+  })
+  async getCurrentUser(
+    @DbUser() dbUser: DbUserType,
+  ): Promise<StandardResponse<UserProfileDto>> {
+    return StandardResponse.ok(
+      await this.profileService.getUserProfile(dbUser.id),
+    );
   }
 }
