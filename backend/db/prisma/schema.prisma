@@ -7,23 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  avatar    String?
-  isActive  Boolean  @default(true)
-  role      UserRole @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
-}
-
 enum UserRole {
   USER
   ADMIN
   MODERATOR
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String
+  role      UserRole @default(USER) // role can also be set in clerk directly
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
 }
 

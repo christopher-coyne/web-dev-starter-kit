@@ -11,13 +11,7 @@ import type { Route } from "./+types/root";
 import { Navbar } from "./components/layout/navbar";
 import "./app.css";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/react-router";
+import { ClerkProvider } from "@clerk/react-router";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
